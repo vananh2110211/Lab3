@@ -5,85 +5,89 @@
  *      Author: ASUS
  */
 
-#include "main.h"
-#include "input_reading.h"
-#include "output_display.h"
 #include "timer.h"
+
 
 static uint16_t		TIME_CYCLE			= 10;
 
-static uint8_t		timer_1_sec_flag	= 0;
-static uint8_t		timer_1_sec_counter = 0;
+static uint8_t		flag_timer_0		= 0;
+static uint8_t		counter_timer_0 	= 0;
 
-static uint8_t		timer_light_flag	= 0;
-static uint8_t		timer_7Seg_flag		= 0;
-static uint16_t		timer_light_counter = 0;
-static uint16_t		timer_7Seg_counter  = 0;
+static uint8_t		flag_timer_1		= 0;
+static uint8_t		counter_timer_1 	= 0;
+
+static uint8_t		flag_timer_2		= 0;
+static uint8_t		counter_timer_2 	= 0;
+
+static uint8_t		flag_timer_3		= 0;
+static uint8_t		counter_timer_3 	= 0;
 
 
-int counter = 20;
-int led_index = 0;
-
-void Set1SecTime(int duration){
-	timer_1_sec_counter = duration / TIME_CYCLE;
-	timer_1_sec_flag = 0;
+void SetTimer_0(uint16_t duration){
+	counter_timer_0 = duration / TIME_CYCLE;
+	flag_timer_0 = 0;
+}
+void SetTimer_1(uint16_t duration){
+	counter_timer_1 = duration / TIME_CYCLE;
+	flag_timer_1 = 0;
 }
 
-void SetBlinkingLightTime(int duration){
-	timer_light_counter = duration / TIME_CYCLE;
-	timer_light_flag = 0;
+void SetTimer_2(uint16_t duration){
+	counter_timer_2 = duration / TIME_CYCLE;
+	flag_timer_2 = 0;
 }
 
-void Set7SegTime(int duration){
-	timer_7Seg_counter = duration / TIME_CYCLE;
-	timer_7Seg_flag = 0;
+void SetTimer_3(uint16_t duration){
+	counter_timer_3 = duration / TIME_CYCLE;
+	flag_timer_3 = 0;
 }
 
-
-void RunTime(){
-	if(timer_light_counter > 0){
-		timer_light_counter--;
-		if(timer_light_counter <= 0){
-			timer_light_flag = 1;
+void RunSoftwareTimer(void){
+	if(counter_timer_0 > 0){
+		counter_timer_0--;
+		if(counter_timer_0 == 0){
+			flag_timer_0 = 1;
 		}
 	}
-
-	if(timer_7Seg_counter > 0){
-		timer_light_counter--;
-		if(timer_light_counter <= 0){
-			timer_light_flag = 1;
+	if(counter_timer_1 > 0){
+		counter_timer_1--;
+		if(counter_timer_1 == 0){
+			flag_timer_1 = 1;
 		}
 	}
-
-	if(timer_1_sec_counter > 0){
-		timer_1_sec_counter--;
-		if(timer_1_sec_counter <= 0){
-			timer_1_sec_flag = 1;
+	if(counter_timer_2 > 0){
+		counter_timer_2--;
+		if(counter_timer_2 == 0){
+			flag_timer_2 = 1;
+		}
+	}
+	if(counter_timer_3 > 0){
+		counter_timer_3--;
+		if(counter_timer_3 == 0){
+			flag_timer_3 = 1;
 		}
 	}
 }
 
-int Timer1SecFlag(){
-	return timer_1_sec_flag;
+uint8_t FlagTimer_0(void){
+	return flag_timer_0;
+}
+uint8_t FlagTimer_1(void){
+	return flag_timer_1;
 }
 
-int Timer7SegFlag(){
-	return timer_7Seg_flag;
+uint8_t FlagTimer_2(void){
+	return flag_timer_2;
 }
 
-int TimerLightFlag(){
-	return timer_light_flag;
+uint8_t FlagTimer_3(void){
+	return flag_timer_3;
 }
 
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
-	counter--;
-	if(counter <= 0){
-		counter = 25;
-		if(led_index > 3) led_index = 0;
-		Update7Seg(led_index++);
-	}
-	if(htim->Instance == TIM2){
-		RunTime();
+	if(htim->Instance == TIM2) {
+		RunSoftwareTimer();
 		button_reading();
 	}
 }
+
